@@ -1,0 +1,118 @@
+---
+title: "TESTE DE HIPÓTESE"
+output: html_notebook
+---
+> **Problema 1**
+
+Um estudo foi realizado para verificar o nível de colesterol de adultos fumantes. É
+
+desejável que o nível de colesterol esteja abaixo de 200 mg/dL. Foi coletada uma amostra de 16 
+
+indivíduos adultos fumantes e o nível de colesterol foi mensurado. Os valores obtidos, em mg/dL, 
+
+foram os seguintes:215 190 282 186 184 231 240 230 178 219 166 199 221 176 225 213
+
+A um nível de significância de 5% podemos dizer que o nível de colesterol é menor que 200 mg/dL?
+
+### Dados para o teste
+
+- nível de significância de 5%
+- nível de colesterol é menor que 200 mg/dL
+
+```{r}
+colesterol_adultos_fumantes <- c(215,190, 282, 186, 184, 231, 240, 230, 178, 219, 166, 199, 221, 176, 225, 213)
+significancia <- 0.05
+```
+
+
+### Resultado comparando P-value x Significância
+
+**Para saber qual hipótese foi aceita, basta verificar o valor do p-value e compará-lo com o nível de significância dado**
+
+```{r}
+teste <- round((t.test(colesterol_adultos_fumantes, alternative="less",mu =200, conf.level = 1 - significancia)$p.value),digits=2)
+
+print(paste("P-value amostral:",teste))
+
+resultado <- ifelse(teste<significancia,
+                    "Resultado Significativo: O nível médio de colesterol é menor que 200 mg/dL.", 
+                    "Resultado Não Significativo: Não há evidências suficientes para concluir que o nível médio de colesterol é menor que 200 mg/dL.")
+
+print(resultado)
+```
+> **Problema 2**
+
+Problema 2: Admite-se que o tempo médio de reação de seres vivos a um certo tipo de estímulo 
+
+segue, em geral, o modelo normal com 𝜇 = 6, 0𝑠 . O pesquisador desconfia, entretanto, que o 
+
+tempo médio sofre alteração por influência de uma certa substância.
+
+Assim, para verificar se existe efeito dessa substância no tempo de reação, um experimento foi 
+
+desenvolvido com cobaias, inoculadas com a substância e submetidas a um estímulo elétrico, com 
+
+seus tempos de reação (em segundos) anotados. Os seguintes valores foram obtidos:
+
+9 9,2 7,2 7,5 13,2 10,8 7,1 9,9 8,0 8,6
+
+Verifique se a desconfiança do pesquisador procede, ao nível de 5% de significância.
+
+### Dados para o teste
+
+- Nivel de significância 5%
+- Confiança 95%
+- Tempo médio 6.0
+
+```{r}
+tempos_de_reacao<-c(9, 9.2, 7.2, 7.5, 13.2, 10.8, 7.1, 9.9, 8.0, 8.6)
+
+```
+### Resultado
+**A função t.test compara a média da amostra com 6.0 ao nível de 5% de significância. Se o p-valor for <0.05, a média é diferente de 6.0 e rejeitamos a hipótese nula caso contrário, não rejeitamos a hipótese nula.**
+```{r}
+teste_2 <- t.test(tempos_de_reacao, mu = 6.0, alternative = "two.sided", conf.level = 0.95)
+
+print(paste("Resultado do teste: ",teste_2))
+
+resultado_2 <- ifelse(teste_2$p.value < 0.05,"Os resultados indicam que o tempo médio é diferente de 6,0 segundos.",
+                      "Não há evidências de diferença no tempo médio de 6,0 segundos.")
+
+print(resultado_2)
+```
+> ** Problema 3 **
+
+Em um seringal no qual se utiliza o processo convencional de sangria, a produção média de borracha seca é de 26g /
+
+árvore / corte. Tomou-se uma amostra ao acaso, composta de 25 seringueiras, as quais foram sangradas, usando-se um novo 
+
+processo. Os resultados encontram-se a seguir: (20 22 21 23 19 15 18 27 28 26 25 16 17 30 29,5 29 19,5 20,5 24,5 24 23,5 
+27,5 21,5 22,5 20,50) Ao nível de significância de 5% podemos dizer que o novo processo é mais eficiente que o 
+
+convencional?
+
+### Dados para o teste
+
+- Produção média = 26
+- Nivel de significância 5%
+- Direção específica, aumento de produção = alternative = greater
+
+```{r}
+amostras_seringueiras<-c(20, 22, 21, 23, 19, 15, 18, 27, 28, 26, 25, 16, 17, 30, 29.5, 29, 19.5, 20.5, 24.5, 24, 23.5, 27.5, 21.5, 22.5, 20.5)
+
+media<-26
+
+```
+### Resultado
+*O teste foi unilateral à direita com alternative = "greater" porque estamos interessados em determinar se o novo  processo é mais eficiente em termos de produção de borracha do que o processo convencional.*
+
+*Se o p-valor for menor que 0,05, podemos concluir que o novo processo é mais eficiente. Caso contrário, não temos  evidências para afirmar isso.*
+
+```{r}
+teste_3 <- t.test(amostras_seringueiras, mu = media, alternative = "greater", conf.level = 0.95)
+resultado_3 <- ifelse(teste_3$p.value < 0.05,
+                    "O novo processo é mais eficiente que o convencional.",
+                    "Não há evidências de que o novo processo seja mais eficiente que o convencional.")
+print(resultado_3)
+```
+

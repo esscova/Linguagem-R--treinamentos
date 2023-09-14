@@ -1,0 +1,93 @@
+---
+title: "TESTE DE HIPÓTESES II"
+output:
+  html_notebook: default
+  pdf_document: default
+---
+>Problema 1
+
+Um estudo foi realizado para verificar se o nível de colesterol de adultos fumantes e não fumantes diferem. Foi coletada uma amostra de 16 indivíduos de cada grupo e o nível de 
+colesterol foi mensurado. Os valores obtidos, em mg/dL, foram os seguintes:
+
+Fumante?
+
+- Sim
+215 190 282 186 184 231 240 230 178 219 166 199 221 176 225 213
+- Não
+221 171 165 234 224 205 256 239 180 183 217 199 298 173 267 248
+
+Ao nível de significância de 5%, podemos dizer que os níveis de colesterol diferem?
+
+### Dados para o teste
+
+```{r}
+colesterol_fumantes <- c(215, 190, 282, 186, 184, 231, 240, 230, 178, 219, 166, 199, 221, 176, 225, 213)
+colesterol_nao_fumantes <- c(221, 171, 165, 234, 224, 205, 256, 239, 180, 183, 217, 199, 298, 173, 267, 248)
+significancia <- 0.05
+```
+
+### Realizando teste entre amostras
+
+```{r}
+# t.test() entre duas amostras 
+resultado_teste <- t.test(colesterol_fumantes, colesterol_nao_fumantes)
+
+# valor do p-value
+p_value <- resultado_teste$p.value
+```
+
+### Conclusões
+
+*Este código executa um teste t de duas amostras independentes para comparar os níveis de colesterol entre fumantes e não fumantes. Se o p-value for menor que 0,05 (nível de significância de 5%), a hipótese nula é rejeitada, sugerindo diferenças nos níveis de colesterol. Caso contrário, não há evidências de diferenças significativas nos níveis de colesterol entre os grupos.*
+
+```{r}
+#condicional com base nos resultados
+conclusao <- ifelse(p_value < significancia, 
+                    "Rejeita-se a hipótese nula. Os níveis de colesterol diferem entre fumantes e não fumantes.", 
+                    "Não se rejeita a hipótese nula. Não há evidências de diferença nos níveis de colesterol entre fumantes e não fumantes.")
+print(conclusao)
+```
+
+>Problema 2
+
+Foi conduzido um experimento para estudar o conteúdo de hemoglobina no sangue de suínos com deficiência de niacina. Aplicaram-se 20 mg de niacina em oito suínos. Os níveis 
+de hemoglobina no sangue foram mensurados antes e depois da aplicação da niacina. Os resultados obtidos no experimento foram:
+
+*Animal 1 2 3 4 5 6 7 8*
+
+- Antes 12,4 13,6 13,6 14,7 12,3 12,2 13,0 11,4
+
+- Depois 10,4 11,4 12,5 14,6 13,0 11,7 10,3 9,8
+
+Ao nível de significância de 5% pode-se afirmar que a aplicação de niacina alterou a hemoglobina 
+no sangue dos suínos?
+
+### Dados para o teste
+
+```{r}
+antes <- c(12.4, 13.6, 13.6, 14.7, 12.3, 12.2, 13.0, 11.4)
+depois <- c(10.4, 11.4, 12.5, 14.6, 13.0, 11.7, 10.3, 9.8)
+significancia <- 0.05
+```
+
+### Realizando teste pareado
+```{r}
+# t.test pareado
+resultado_teste_2 <- t.test(depois, antes, paired = TRUE, alternative = "two.sided")
+
+# valor do p-value
+p_value_2 <- resultado_teste_2$p.value
+```
+
+### Conclusões
+
+*Este código conduz um teste t pareado e determina se a aplicação de niacina afetou os níveis de hemoglobina nos suínos com base no valor do p-value. Se o p-value for menor que 0,05, conclui-se que a niacina teve um efeito estatisticamente significativo na hemoglobina. Caso contrário, não há evidências estatísticas desse efeito.*
+
+```{r}
+#condicional com base nos resultados
+conclusao_2 <- ifelse(p_value_2 < significancia, 
+                   "Rejeita-se a hipótese nula. Há evidências de que a aplicação de niacina alterou a hemoglobina dos suínos.",
+                   "Não se rejeita a hipótese nula. Não há evidências de que a aplicação de niacina tenha alterado a hemoglobina dos suínos.")
+
+print(conclusao_2)
+```
