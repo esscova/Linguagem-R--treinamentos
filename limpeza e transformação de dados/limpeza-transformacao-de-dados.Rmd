@@ -1,0 +1,283 @@
+---
+title: "Formação Cientista de Dados"
+author: "Wellington Moreira"
+output: pdf_document
+---
+
+#### Carregando dados
+
+Com a função read.csv( ) carregamos o dataset para análises
+
+-   na.strings="" - importa campos vazios como NA, ou seja não disponível
+-   stringsAsFactores = T - para tratamento de dados categóricos, strings serão tratadas como fatores
+-   sumary - resume os dados, inclusive categóricos
+-   head - mostrará as primeiras 6 linhas do dataset
+
+```{r}
+# importa dados, string vazio como NA, string como fatores
+
+dados = read.csv("Churn.csv", sep = ";", na.strings="", stringsAsFactors=T)
+head(dados)
+summary(dados)
+```
+
+#### Colunas
+
+Após análise usamos a função colnames( ) com o dataset como parametro, para através de um vetor atribuirmos novos nomes.
+
+```{r}
+#Dar nomes corretos as colunas
+colnames(dados) = c("Id","Score","Estado","Genero","Idade","Patrimonio","Saldo","Produtos","TemCartCredito","Ativo","Salario","Saiu")
+head(dados)
+```
+
+#### Análise exploratória inicial
+
+> Explorar dados de variáveis categóricas e numéricas para encontrar insconsistências.
+
+-   Primeiro faremos a contagem dos dados com a função table ( ).
+
+-   Depois a plotagem para melhor visualizaçao dos dados.
+
+*Dados categóricos*
+
+```{r}
+#Estados
+counts = table(dados$Estado)
+barplot(counts, main="Estados", xlab="Estados")
+#Gênero
+counts = table(dados$Genero)
+barplot(counts, main="Gêneros", xlab="Gêneros")
+```
+
+*Dados numéricos*
+
+*Score*
+
+```{r}
+#Score
+summary(dados$Score)
+boxplot(dados$Score)
+hist(dados$Score)
+```
+
+*Idade*
+
+```{r}
+summary(dados$Idade)
+boxplot(dados$Idade)
+hist(dados$Idade)
+```
+
+*Saldo*
+
+```{r}
+summary(dados$Saldo)
+boxplot(dados$Saldo)
+hist(dados$Saldo)
+```
+
+*Salário*
+
+```{r}
+summary(dados$Salario)
+boxplot(dados$Salario)
+boxplot(dados$Salario,outline = F)
+```
+
+### Transformação dos dados
+
+> Iniciamos a padronização dos dados, uma forma usual de tratamento de dados numéricos não disponíveis é a substituição pelo valor da mediana.
+>
+> Para dados categóricos utilizaremos o valor mais frequente (moda).
+>
+> Remoção de dados duplicados e outliers
+
+*Identificando valores faltantes*
+
+-   Acessamos o dataset com [linhas, colunas ] .
+
+-   complete.cases ( ) nos mostrará as linhas que estão completas.
+
+```{r}
+#valores faltantes NAs
+dados[!complete.cases(dados),]
+```
+
+*Padronização da variável 'Salários'*
+
+-   Revemos os dados pelo summary.
+
+-   A função median vai nos calcular a mediana, o parâmetro na.rm = T retira os NAs para o calculo.
+
+-   Para substituição dos valores NAs utilizamos um teste lógico para as linhas com a função is.na( ) que tem retorno booleano.
+
+    -   dataset[tem linha com NA nessa variavel do dataset?, colunas] variavel
+
+    -   se sim, entao atribua a isso.
+
+-   Por fim conferimos novamente a existencia de dados NA
+
+```{r}
+#tratar salários
+summary(dados$Salario)
+#ver mediana
+median(dados$Salario,na.rm = T)
+#atribuir mediana a NAs
+dados[is.na(dados$Salario),]$Salario = median(dados$Salario,na.rm = T)
+#buscar NAS em salario para checar
+dados[!complete.cases(dados$Salario),]
+```
+
+*Padronização da variável 'Gênero'*
+
+-   A função unique ( ) retornará os valores únicos
+
+-   Summary para revermos a contagem de dados da variável
+
+-   Por aplicação lógica, assim como antes, padronizamos os dados.
+
+-   A função factor( ) removerá os fatores que não estão sendo utilizados.
+
+```{r}
+#Ver valores
+unique(dados$Genero)
+summary(dados$Genero)
+
+#tranformar F e Fem em Feminino
+# "" , M em Masculino (moda)
+dados[is.na(dados$Genero) | dados$Genero == "M" ,]$Genero = "Masculino" 
+dados[dados$Genero == "F" | dados$Genero == "Fem", ]$Genero = "Feminino" 
+
+#ver resultado
+summary(dados$Genero)
+
+#remover levels não utilizados
+dados$Genero =   factor(dados$Genero)
+
+#visualizar novamente
+summary(dados$Genero)
+```
+
+*Padronização da variável 'idades'*
+
+-   Summary para revermos o resumo da variável.
+
+-   Por lógica buscamos valores da variável menores que ou, maiores que um domínio estabelecido.
+
+-   Buscaremos NAs
+
+-   Padronizamos com a mediana atribuída aos dados filtrados por lógica.
+
+-   Filtramos e confirmamos novamente com resumo.
+
+```{r}
+summary(dados$Idade)
+
+#fora do dominio, numérico - ver idades anormais
+dados[dados$Idade<0 | dados$Idade>110 ,]$Idade
+
+#não temos idade NAs
+dados[is.na(dados$Idade),]
+
+#opção, preencher com mediana
+median(dados$Idade)
+
+#subtituição
+dados[dados$Idade<0 | dados$Idade>110 ,]$Idade = median(dados$Idade) 
+
+#buscamos novamente idades anormais
+dados[dados$Idade<0 | dados$Idade>110 ,]
+summary(dados$Idade)
+```
+
+*Padronização de dados duplicados*
+
+-   Por este dataset conter uma variável 'ID' podemos por ela buscar inconsistências.
+
+-   A função duplicated ( ) retornará duplicações em registros da variável.
+
+-   Com o retorno da função removeremos duplicatas com base em seu índice.
+
+-   Após a remoção verificamos para confirmação de exclusão.
+
+```{r}
+#buscar duplicados pelo ID
+x =  dados[duplicated(dados$Id),]
+x
+
+#verificamos que o ID 81 está duplicado
+#vamos excluir pelo indice 82
+dados = dados[-c(82),]
+
+#buscamos a linha que estava duplicada
+dados[dados$Id == x$Id ,]
+
+#verificamos novamente duplicados
+x =  dados[duplicated(dados$Id),]
+x
+```
+
+*Padronização da variável 'Estado'*
+
+-   Com domínio estabelecido utilizamos a função unique ( ) para visualização de valores únicos.
+
+-   O resumo com summary nos mostrará a contagem de valores.
+
+-   Por lógica atribuímos a moda os dados filtrados.
+
+-   Revemos o resumo para confirmação.
+
+-   Com a função factor ( ) novamente retiramos fatores não utilizados.
+
+-   Revemos novamente o resumo para nova confirmação.
+
+```{r}
+#fora do dominio - categorico
+unique(dados$Estado)
+summary(dados$Estado)
+
+#preencher com a moda, RS
+dados[!dados$Estado %in% c("RS","SC","PR"),]$Estado = "RS"
+summary(dados$Estado)
+
+#removemos fatores não usados
+dados$Estado =   factor(dados$Estado)
+
+#visualizar novamente
+summary(dados$Estado)
+```
+
+*Padronização de outliers*
+
+-   Definimos métricas para estabelecer o padrão, um critério usual é o desvio padrão (distanciamento da média).
+
+-   A função sd( ) com parametro na.rm=T, retornará o calculo do desvio padrão descosiderado NAs.
+
+-   Filtramos por lógica dados que estejam acima de duas vezes o desvio padrão.
+
+-   Através de boxplot também vemos visualmente dados outliers.
+
+-   Atribuímos aos dados filtrados por lógica a mediana.
+
+-   Verificamos o filtro novamente para confirmação de padronização de dados outliers.
+
+```{r}
+#outliers, criando um parametro com desvio padrão
+desv = sd(dados$Salario, na.rm = T)
+desv
+dados[dados$Salario >= 2 *desv  , ]$Salario
+
+#outra forma, resultado semelhante, mas sem os NAs
+boxplot(dados$Salario)
+boxplot(dados$Salario, outline = F)
+x = boxplot(dados$Salario)$out
+x
+
+#atualizamos todos para mediana
+median(dados$Salario)
+dados[dados$Salario >= 2 *desv  , ]$Salario = median(dados$Salario)
+
+#checamos se sairam os outliers
+dados[dados$Salario >= 2 *desv  , ]$Salario
+```
